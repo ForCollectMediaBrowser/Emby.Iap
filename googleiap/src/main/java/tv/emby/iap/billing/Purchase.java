@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package tv.emby.googleiap.billing;
+package tv.emby.iap.billing;
 
 import org.json.JSONException;
 import org.json.JSONObject;

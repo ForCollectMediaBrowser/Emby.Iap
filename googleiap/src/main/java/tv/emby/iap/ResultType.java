@@ -1,4 +1,4 @@
-package tv.emby.googleiap;
+package tv.emby.iap;
 
 /**
  * Created by Eric on 5/30/2015.

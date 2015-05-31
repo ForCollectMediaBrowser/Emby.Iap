@@ -1,4 +1,4 @@
-package tv.emby.googleiap;
+package tv.emby.iap;
 
 public enum ErrorType {
     UnableToConnectToStore,

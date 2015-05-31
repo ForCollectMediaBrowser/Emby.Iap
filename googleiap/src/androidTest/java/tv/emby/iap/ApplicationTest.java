@@ -1,4 +1,4 @@
-package tv.emby.googleiap;
+package tv.emby.iap;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -1,4 +1,4 @@
-package tv.emby.googleiap;
+package tv.emby.iap;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,9 +10,10 @@ import android.widget.Toast;
 
 import java.util.UUID;
 
-import tv.emby.googleiap.billing.IabHelper;
-import tv.emby.googleiap.billing.IabResult;
-import tv.emby.googleiap.billing.Purchase;
+import tv.emby.googleiap.R;
+import tv.emby.iap.billing.IabHelper;
+import tv.emby.iap.billing.IabResult;
+import tv.emby.iap.billing.Purchase;
 
 public class UnlockActivity extends Activity {
 

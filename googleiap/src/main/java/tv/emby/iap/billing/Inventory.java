@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package tv.emby.googleiap.billing;
+package tv.emby.iap.billing;
 
 import java.util.ArrayList;
 import java.util.HashMap;

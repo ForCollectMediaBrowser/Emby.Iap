@@ -1,11 +1,11 @@
-package tv.emby.googleiap;
+package tv.emby.iap;
 
 
 import android.content.Context;
 
-import tv.emby.googleiap.billing.IabHelper;
-import tv.emby.googleiap.billing.IabResult;
-import tv.emby.googleiap.billing.Inventory;
+import tv.emby.iap.billing.IabHelper;
+import tv.emby.iap.billing.IabResult;
+import tv.emby.iap.billing.Inventory;
 
 /**
  * Created by Eric on 4/10/2015.

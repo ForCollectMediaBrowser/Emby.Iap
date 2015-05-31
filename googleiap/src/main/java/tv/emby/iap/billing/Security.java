@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package tv.emby.googleiap.billing;
+package tv.emby.iap.billing;
 
 import android.text.TextUtils;
 import android.util.Log;
