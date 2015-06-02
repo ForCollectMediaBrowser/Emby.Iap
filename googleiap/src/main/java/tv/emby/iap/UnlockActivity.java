@@ -41,13 +41,6 @@ public class UnlockActivity extends Activity {
                     finish();
 
                 }
-            }
-        });
-
-        Button next = (Button) findViewById(R.id.buttonNext);
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 final String check = UUID.randomUUID().toString();
                 iabHelper.launchPurchaseFlow(activity, sku, 1000, new IabHelper.OnIabPurchaseFinishedListener() {
                     @Override
@@ -74,13 +67,6 @@ public class UnlockActivity extends Activity {
             }
         });
 
-        Button cancel = (Button) findViewById(R.id.buttonCancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 
     @Override

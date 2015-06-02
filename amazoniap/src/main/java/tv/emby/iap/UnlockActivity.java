@@ -15,7 +15,6 @@ public class UnlockActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unlock);
 
-        final Activity activity = this;
         Intent intent = getIntent();
         final String sku = intent.getStringExtra("sku");
         iabValidator = new IabValidator(this, "", new IResultHandler() {
@@ -30,20 +29,7 @@ public class UnlockActivity extends Activity {
             }
         });
 
-        Button next = (Button) findViewById(R.id.buttonNext);
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                iabValidator.purchase(activity, sku);
-            }
-        });
+        iabValidator.purchase(this, sku);
 
-        Button cancel = (Button) findViewById(R.id.buttonCancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 }
