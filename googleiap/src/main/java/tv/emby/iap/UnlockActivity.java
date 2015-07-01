@@ -49,17 +49,18 @@ public class UnlockActivity extends Activity {
                             if (!result.getMessage().contains("-1005")) { // make sure it isn't just user cancelled
                                 Toast.makeText(getApplicationContext(), "Error completing purchase.  Please try later.", Toast.LENGTH_LONG).show();
                             }
+
+                            setResult(RESULT_CANCELED);
                         } else {
                             if (info.getSku().equals(sku) && info.getDeveloperPayload().equals(check)) {
                                 setResult(RESULT_OK);
-                                activity.finish();
                             } else {
                                 Intent error = new Intent();
                                 error.putExtra("data", info.getOriginalJson());
                                 setResult(RESULT_CANCELED, error);
-                                activity.finish();
                             }
                         }
+                        activity.finish();
                     }
 
 
