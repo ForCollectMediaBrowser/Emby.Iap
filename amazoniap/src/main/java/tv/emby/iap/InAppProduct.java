@@ -1,5 +1,7 @@
 package tv.emby.iap;
 
+import tv.emby.iap.ProductType;
+
 /**
  * Created by Eric on 9/16/2015.
  */

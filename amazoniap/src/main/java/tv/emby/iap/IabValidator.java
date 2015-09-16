@@ -22,13 +22,12 @@ public class IabValidator {
     private String amazonUserId;
     private String amazonMarketplace;
     private String sku;
-    private IResultHandler resultHandler;
+    private IResultHandler<ResultType> purchaseHandler;
 
     private Activity purchaseActivity;
 
-    public IabValidator(Context context, String key, IResultHandler resultHandler) {
+    public IabValidator(Context context, String key) {
         //key is not used for Amazon
-        this.resultHandler = resultHandler;
         PurchasingService.registerListener(context, new PurchasingListener(this));
     }
 
@@ -37,8 +36,9 @@ public class IabValidator {
         amazonMarketplace = marketplace;
     }
 
-    public void purchase(Activity activity, String sku) {
+    public void purchase(Activity activity, String sku, IResultHandler<ResultType> handler) {
         purchaseActivity = activity;
+        purchaseHandler = handler;
         this.sku = sku;
         PurchasingService.purchase(sku);
     }
@@ -48,11 +48,12 @@ public class IabValidator {
     }
 
     public void setResult(ResultType result) {
-        resultHandler.handleResult(result);
+        purchaseHandler.onResult(result);
     }
 
-    public void checkInAppPurchase(String sku) {
+    public void checkInAppPurchase(String sku, IResultHandler<ResultType> resultHandler) {
         this.sku = sku;
+        this.purchaseHandler = resultHandler;
         final Set<String> productSkus =  new HashSet();
         productSkus.add(sku);
         PurchasingService.getProductData(productSkus);
@@ -62,13 +63,13 @@ public class IabValidator {
 
     public void handleReceipt(Receipt receipt, boolean fulfill) {
         if (receipt.isCanceled()) {
-            resultHandler.handleResult(ResultType.Canceled);
+            purchaseHandler.onResult(ResultType.Canceled);
         } else {
             if (receipt.getSku().equals(sku)) {
                 if (fulfill) PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
-                resultHandler.handleResult(ResultType.Success);
+                purchaseHandler.onResult(ResultType.Success);
             } else {
-                resultHandler.handleError(ErrorSeverity.Critical, ErrorType.InvalidProduct, "Invalid sku reported: "+receipt.getSku());
+                purchaseHandler.onError(ErrorSeverity.Critical, ErrorType.InvalidProduct, "Invalid sku reported: " + receipt.getSku());
                 PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.UNAVAILABLE);
             }
         }

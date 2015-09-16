@@ -17,19 +17,19 @@ public class UnlockActivity extends Activity {
 
         Intent intent = getIntent();
         final String sku = intent.getStringExtra("sku");
-        iabValidator = new IabValidator(this, "", new IResultHandler() {
+        iabValidator = new IabValidator(this, "");
+
+        iabValidator.purchase(this, sku, new IResultHandler<ResultType>() {
             @Override
-            public void handleResult(ResultType result) {
+            public void onResult(ResultType result) {
                 // not used for amazon
             }
 
             @Override
-            public void handleError(ErrorSeverity severity, ErrorType error, String message) {
+            public void onError(ErrorSeverity severity, ErrorType error, String message) {
                 // not used for amazon
             }
         });
-
-        iabValidator.purchase(this, sku);
 
     }
 }
