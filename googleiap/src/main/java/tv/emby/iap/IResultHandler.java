@@ -1,9 +1,11 @@
 package tv.emby.iap;
 
+import java.util.List;
+
 /**
  * Created by Eric on 5/30/2015.
  */
-public interface IResultHandler {
-    public void handleResult(ResultType result);
-    public void handleError(ErrorSeverity severity, ErrorType error, String message);
+public interface IResultHandler<T> {
+    public void onResult(T result);
+    public void onError(ErrorSeverity severity, ErrorType error, String message);
 }
