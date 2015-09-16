@@ -60,12 +60,12 @@ public class IabValidator {
         PurchasingService.getPurchaseUpdates(true);
     }
 
-    public void handleReceipt(Receipt receipt) {
+    public void handleReceipt(Receipt receipt, boolean fulfill) {
         if (receipt.isCanceled()) {
             resultHandler.handleResult(ResultType.Canceled);
         } else {
             if (receipt.getSku().equals(sku)) {
-                PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
+                if (fulfill) PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
                 resultHandler.handleResult(ResultType.Success);
             } else {
                 resultHandler.handleError(ErrorSeverity.Critical, ErrorType.InvalidProduct, "Invalid sku reported: "+receipt.getSku());
