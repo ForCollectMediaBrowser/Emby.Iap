@@ -55,16 +55,7 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
      */
     @Override
     public void onProductDataResponse(final ProductDataResponse response) {
-        final ProductDataResponse.RequestStatus status = response.getRequestStatus();
-
-        switch (status) {
-        case SUCCESSFUL:
-            break;
-        case FAILED:
-        case NOT_SUPPORTED:
-            iapManager.setResult(ResultType.Failure);
-            break;
-        }
+        iapManager.handleProductResponse(response);
     }
 
     /**

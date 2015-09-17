@@ -76,8 +76,13 @@ public class Inventory {
         return result;
     }
 
+    /** Returns a list of all products. */
+    public List<SkuDetails> getAllProducts() {
+        return new ArrayList<SkuDetails>(mSkuMap.values());
+    }
+
     /** Returns a list of all purchases. */
-    List<Purchase> getAllPurchases() {
+    public List<Purchase> getAllPurchases() {
         return new ArrayList<Purchase>(mPurchaseMap.values());
     }
 

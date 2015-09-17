@@ -39,7 +39,7 @@ public class UnlockActivity extends Activity {
                     //Failed to connect to Google Play
                     Toast.makeText(getApplicationContext(), "Error connecting to Google Play Store.  Please try later.", Toast.LENGTH_LONG).show();
                     finish();
-
+                    return;
                 }
                 final String check = UUID.randomUUID().toString();
                 iabHelper.launchPurchaseFlow(activity, sku, 1000, new IabHelper.OnIabPurchaseFinishedListener() {

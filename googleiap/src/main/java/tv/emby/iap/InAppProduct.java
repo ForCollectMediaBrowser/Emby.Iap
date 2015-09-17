@@ -1,5 +1,11 @@
 package tv.emby.iap;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import tv.emby.iap.billing.SkuDetails;
+
 /**
  * Created by Eric on 9/16/2015.
  */
@@ -9,11 +15,41 @@ public class InAppProduct {
     private ProductType productType;
     private String title;
     private String description;
-    private float price;
+    private String price;
     private SubscriptionPeriod period;
+    private static String[] MonthlySubscriptionSkus = new String[] {"com.mb.android.supporter.monthly"};
+    private static String[] LifetimeSubscriptionSkus = new String[] {"com.mb.android.supporter.lifetime"};
+    private static String[] UnlockSkus = new String[] {"com.mb.android.unlock"};
+
+    public static String getCurrentMonthlySku() { return MonthlySubscriptionSkus[0]; }
+    public static String getCurrentLifetimeSku() { return LifetimeSubscriptionSkus[0]; }
+    public static String getCurrentUnlockSku() { return UnlockSkus[0]; }
+
+    public static List<String> getCurrentSkus() {
+        List<String> skus = new ArrayList<>();
+        skus.add(getCurrentUnlockSku());
+        skus.add(getCurrentMonthlySku());
+        skus.add(getCurrentLifetimeSku());
+
+        return skus;
+    }
 
     public boolean requiresEmail() {
         return embyFeatureCode != null;
+    }
+
+    public InAppProduct(SkuDetails googleProduct) {
+        sku = googleProduct.getSku();
+        if (Arrays.asList(MonthlySubscriptionSkus).contains(sku)) {
+            embyFeatureCode = "MBSClubMonthly";
+            period = SubscriptionPeriod.Monthly;
+        } else if (Arrays.asList(LifetimeSubscriptionSkus).contains(sku)) {
+            embyFeatureCode = "MBSupporter";
+        }
+        productType = googleProduct.getType().equals("subs") ? ProductType.Subscription : ProductType.Product;
+        title = googleProduct.getTitle();
+        description = googleProduct.getDescription();
+        price = googleProduct.getPrice();
     }
 
     public String getSku() {
@@ -56,11 +92,11 @@ public class InAppProduct {
         this.description = description;
     }
 
-    public float getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
