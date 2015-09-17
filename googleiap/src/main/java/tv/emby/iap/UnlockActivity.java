@@ -18,7 +18,6 @@ import tv.emby.iap.billing.Purchase;
 public class UnlockActivity extends Activity {
 
     private IabHelper iabHelper;
-    private String sku;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +26,7 @@ public class UnlockActivity extends Activity {
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("googleKey");
-        sku = intent.getStringExtra("sku");
+        final String sku = intent.getStringExtra("sku");
 
         final Activity activity = this;
         iabHelper = new IabHelper(this, key);
