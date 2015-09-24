@@ -21,8 +21,8 @@ public class InAppProduct {
     private String description;
     private String price;
     private SubscriptionPeriod period;
-    private static String[] MonthlySubscriptionSkus = new String[] {"com.mb.android.supporter.monthly"};
-    private static String[] LifetimeSubscriptionSkus = new String[] {"com.mb.android.supporter.lifetime"};
+    private static String[] MonthlySubscriptionSkus = new String[] {"emby.supporter.monthly"};
+    private static String[] LifetimeSubscriptionSkus = new String[] {"emby.supporter.lifetime"};
     private static String[] UnlockSkus = new String[] {"com.mb.android.unlock"};
 
     public static String getCurrentMonthlySku() { return MonthlySubscriptionSkus[0]; }
