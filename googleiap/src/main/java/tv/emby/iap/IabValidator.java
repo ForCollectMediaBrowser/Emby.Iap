@@ -102,7 +102,7 @@ public class IabValidator {
                     // Build our list of products to return
                     List<InAppProduct> products = new ArrayList<>();
                     for (SkuDetails googleProduct : inv.getAllProducts()) {
-                        products.add(new InAppProduct(googleProduct));
+                        if (!googleProduct.getTitle().contains("inactive")) products.add(new InAppProduct(googleProduct));
                     }
 
                     handler.onResult(products);

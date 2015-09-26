@@ -5,5 +5,5 @@ package tv.emby.iap;
  */
 public enum SubscriptionPeriod {
     Monthly,
-    Annual
+    Weekly, Annual
 }

@@ -68,7 +68,7 @@ public class IabValidator {
     }
 
     public void handleProductResponse(ProductDataResponse response) {
-        Log.d("AmazonIap", "*** handleProductResponse - "+response.getRequestStatus());
+        Log.d("AmazonIap", "*** handleProductResponse - " + response.getRequestStatus());
         if (productHandler == null) return;
 
         final ProductDataResponse.RequestStatus status = response.getRequestStatus();
@@ -78,7 +78,8 @@ public class IabValidator {
                 List<InAppProduct> products = new ArrayList<>();
                 final Map<String,Product> amazonProducts = response.getProductData();
                 for (String key : amazonProducts.keySet()) {
-                    products.add(new InAppProduct(amazonProducts.get(key)));
+                    Product product = amazonProducts.get(key);
+                    if (!product.getTitle().contains("inactive")) products.add(new InAppProduct(product));
                 }
                 productHandler.onResult(products);
                 break;

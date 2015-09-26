@@ -22,10 +22,12 @@ public class InAppProduct {
     private String price;
     private SubscriptionPeriod period;
     private static String[] MonthlySubscriptionSkus = new String[] {"emby.supporter.monthly"};
+    private static String[] WeeklySubscriptionSkus = new String[] {"emby.supporter.weekly"};
     private static String[] LifetimeSubscriptionSkus = new String[] {"emby.supporter.lifetime"};
     private static String[] UnlockSkus = new String[] {"com.mb.android.unlock"};
 
     public static String getCurrentMonthlySku() { return MonthlySubscriptionSkus[0]; }
+    public static String getCurrentWeeklySku() { return WeeklySubscriptionSkus[0]; }
     public static String getCurrentLifetimeSku() { return LifetimeSubscriptionSkus[0]; }
     public static String getCurrentUnlockSku() { return UnlockSkus[0]; }
 
@@ -33,6 +35,7 @@ public class InAppProduct {
         HashSet<String> skus = new HashSet<>();
         skus.add(getCurrentUnlockSku());
         skus.add(getCurrentMonthlySku());
+        skus.add(getCurrentWeeklySku());
         skus.add(getCurrentLifetimeSku());
 
         return skus;
@@ -47,6 +50,9 @@ public class InAppProduct {
         if (Arrays.asList(MonthlySubscriptionSkus).contains(sku)) {
             embyFeatureCode = "MBSClubMonthly";
             period = SubscriptionPeriod.Monthly;
+        } else if (Arrays.asList(WeeklySubscriptionSkus).contains(sku)) {
+            embyFeatureCode = "MBSClubWeekly";
+            period = SubscriptionPeriod.Weekly;
         } else if (Arrays.asList(LifetimeSubscriptionSkus).contains(sku)) {
             embyFeatureCode = "MBSupporter";
         }
