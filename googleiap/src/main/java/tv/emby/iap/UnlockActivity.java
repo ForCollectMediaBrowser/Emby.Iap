@@ -69,6 +69,7 @@ public class UnlockActivity extends Activity {
                                 Intent success = new Intent();
                                 success.putExtra("product", productJson);
                                 success.putExtra("storeToken", info.getToken());
+                                success.putExtra("store", "Google");
                                 setResult(RESULT_OK, success);
                             } else {
                                 Intent error = new Intent();

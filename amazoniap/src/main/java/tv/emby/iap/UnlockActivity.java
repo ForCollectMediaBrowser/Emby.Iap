@@ -44,6 +44,7 @@ public class UnlockActivity extends Activity {
                         success.putExtra("product", productJson);
                         success.putExtra("storeToken", iabValidator.getReceiptId());
                         success.putExtra("storeId", iabValidator.getAmazonUserId());
+                        success.putExtra("store", "Amazon");
                         setResult(RESULT_OK, success);
                         break;
                     case Canceled:
