@@ -1,11 +1,15 @@
 package tv.emby.iap.billing;
 
+import android.util.Log;
+
 import com.amazon.device.iap.PurchasingService;
 import com.amazon.device.iap.model.ProductDataResponse;
 import com.amazon.device.iap.model.PurchaseResponse;
 import com.amazon.device.iap.model.PurchaseUpdatesResponse;
 import com.amazon.device.iap.model.Receipt;
 import com.amazon.device.iap.model.UserDataResponse;
+
+import org.json.JSONException;
 
 import tv.emby.iap.R;
 import tv.emby.iap.IabValidator;
@@ -51,7 +55,6 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
     /**
      * This is the callback for {@link com.amazon.device.iap.PurchasingService#getProductData}.
      *
-     * We don't actually need this because we have only one SKU that is always available
      */
     @Override
     public void onProductDataResponse(final ProductDataResponse response) {
@@ -69,6 +72,11 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
      */
     @Override
     public void onPurchaseUpdatesResponse(final PurchaseUpdatesResponse response) {
+        try {
+            Log.d("AmazonIap", "*** purchaseUpdatesResponse - " + response.toJSON());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         final PurchaseUpdatesResponse.RequestStatus status = response.getRequestStatus();
         switch (status) {
         case SUCCESSFUL:

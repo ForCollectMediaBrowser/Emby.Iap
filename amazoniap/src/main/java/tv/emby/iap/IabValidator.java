@@ -10,6 +10,9 @@ import com.amazon.device.iap.model.Product;
 import com.amazon.device.iap.model.ProductDataResponse;
 import com.amazon.device.iap.model.Receipt;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +30,9 @@ public class IabValidator {
 
     private String amazonUserId;
     private String amazonMarketplace;
+    private String productJson;
     private String sku;
+    private String receiptId;
     private IResultHandler<ResultType> purchaseHandler;
     private IResultHandler<List<InAppProduct>> productHandler;
     private boolean disposed;
@@ -37,6 +42,7 @@ public class IabValidator {
     public IabValidator(Context context, String key) {
         //key is not used for Amazon
         PurchasingService.registerListener(context, new PurchasingListener(this));
+        PurchasingService.getUserData();
     }
 
     public void setAmazonUserId(String id, String marketplace) {
@@ -44,12 +50,24 @@ public class IabValidator {
         amazonMarketplace = marketplace;
     }
 
+    public String getReceiptId() { return receiptId; }
+    public String getAmazonUserId() { return amazonUserId; }
     public boolean isDisposed() { return disposed; }
 
-    public void purchase(Activity activity, String sku, IResultHandler<ResultType> handler) {
+
+    public void purchase(Activity activity, String productJson, IResultHandler<ResultType> handler) {
         purchaseActivity = activity;
         purchaseHandler = handler;
-        this.sku = sku;
+        this.productJson = productJson;
+        try {
+            JSONObject product = new JSONObject(productJson);
+            sku = product.getString("sku");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            activity.finish();
+            return;
+        }
+
         PurchasingService.purchase(sku);
     }
 
@@ -95,11 +113,7 @@ public class IabValidator {
     public void checkInAppPurchase(String sku, IResultHandler<ResultType> resultHandler) {
         this.sku = sku;
         this.purchaseHandler = resultHandler;
-        Log.d("AmazonIap", "*** checkInAppPurchase - "+sku);
-        final Set<String> productSkus =  new HashSet();
-        productSkus.add(sku);
-        PurchasingService.getProductData(productSkus);
-        PurchasingService.getUserData();
+        Log.d("AmazonIap", "*** checkInAppPurchase - " + sku);
         PurchasingService.getPurchaseUpdates(true);
     }
 
@@ -109,7 +123,10 @@ public class IabValidator {
             purchaseHandler.onResult(ResultType.Canceled);
         } else {
             if (receipt.getSku().equals(sku)) {
-                if (fulfill) PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
+                if (fulfill) {
+                    PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
+                }
+                this.receiptId = receipt.getReceiptId();
                 purchaseHandler.onResult(ResultType.Success);
             } else {
                 purchaseHandler.onError(ErrorSeverity.Critical, ErrorType.InvalidProduct, "Invalid sku reported: " + receipt.getSku());

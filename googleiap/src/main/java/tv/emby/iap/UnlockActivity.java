@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.UUID;
 
@@ -19,6 +21,7 @@ public class UnlockActivity extends Activity {
 
     private IabHelper iabHelper;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +29,18 @@ public class UnlockActivity extends Activity {
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("googleKey");
-        final String sku = intent.getStringExtra("sku");
+        final String productJson = intent.getStringExtra("product");
+        final String sku;
+        JSONObject product;
+        try {
+            product = new JSONObject(productJson);
+            sku = product.getString("sku");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            finish();
+            return;
+        }
+
 
         final Activity activity = this;
         iabHelper = new IabHelper(this, key);
@@ -52,7 +66,10 @@ public class UnlockActivity extends Activity {
                             setResult(RESULT_CANCELED);
                         } else {
                             if (info.getSku().equals(sku) && info.getDeveloperPayload().equals(check)) {
-                                setResult(RESULT_OK);
+                                Intent success = new Intent();
+                                success.putExtra("product", productJson);
+                                success.putExtra("storeToken", info.getToken());
+                                setResult(RESULT_OK, success);
                             } else {
                                 Intent error = new Intent();
                                 error.putExtra("data", info.getOriginalJson());
