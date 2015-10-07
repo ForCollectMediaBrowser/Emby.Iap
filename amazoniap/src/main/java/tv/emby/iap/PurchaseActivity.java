@@ -9,7 +9,7 @@ import android.widget.Button;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class UnlockActivity extends Activity {
+public class PurchaseActivity extends Activity {
 
     IabValidator iabValidator;
     String productJson;

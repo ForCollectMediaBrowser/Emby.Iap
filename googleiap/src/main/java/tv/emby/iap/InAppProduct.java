@@ -2,6 +2,7 @@ package tv.emby.iap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import tv.emby.iap.billing.SkuDetails;
@@ -17,22 +18,38 @@ public class InAppProduct {
     private String description;
     private String price;
     private SubscriptionPeriod period;
-    private static String[] MonthlySubscriptionSkus = new String[] {"emby.supporter.monthly"};
-    private static String[] WeeklySubscriptionSkus = new String[] {"emby.supporter.weekly"};
-    private static String[] LifetimeSubscriptionSkus = new String[] {"emby.supporter.lifetime"};
-    private static String[] UnlockSkus = new String[] {"com.mb.android.unlock"};
+    private static HashMap<String,String> MonthlySubscriptionSkus = new HashMap<>();
+    static {
+        MonthlySubscriptionSkus.put("com.mb.android","emby.supporter.monthly");
+        MonthlySubscriptionSkus.put("tv.emby.embyatv","emby.supporter.atv.monthly");
+    }
+    private static HashMap<String,String> WeeklySubscriptionSkus = new HashMap<>();
+    static {
+        WeeklySubscriptionSkus.put("com.mb.android","emby.supporter.weekly");
+        WeeklySubscriptionSkus.put("tv.emby.embyatv","emby.supporter.atv.weekly");
+    }
+    private static HashMap<String,String> LifetimeSubscriptionSkus = new HashMap<>();
+    static {
+        LifetimeSubscriptionSkus.put("com.mb.android","emby.supporter.lifetime");
+        LifetimeSubscriptionSkus.put("tv.emby.embyatv","emby.supporter.atv.lifetime");
+    }
+    private static HashMap<String,String> UnlockSkus = new HashMap<>();
+    static {
+        UnlockSkus.put("com.mb.android","com.mb.android.unlock");
+        UnlockSkus.put("tv.emby.embyatv","tv.emby.embyatv.unlock");
+    }
 
-    public static String getCurrentMonthlySku() { return MonthlySubscriptionSkus[0]; }
-    public static String getCurrentWeeklySku() { return WeeklySubscriptionSkus[0]; }
-    public static String getCurrentLifetimeSku() { return LifetimeSubscriptionSkus[0]; }
-    public static String getCurrentUnlockSku() { return UnlockSkus[0]; }
+    public static String getCurrentMonthlySku(String app) { return MonthlySubscriptionSkus.get(app); }
+    public static String getCurrentWeeklySku(String app) { return WeeklySubscriptionSkus.get(app); }
+    public static String getCurrentLifetimeSku(String app) { return LifetimeSubscriptionSkus.get(app); }
+    public static String getCurrentUnlockSku(String app) { return UnlockSkus.get(app); }
 
-    public static List<String> getCurrentSkus() {
+    public static List<String> getCurrentSkus(String app) {
         List<String> skus = new ArrayList<>();
-        skus.add(getCurrentUnlockSku());
-        skus.add(getCurrentWeeklySku());
-        skus.add(getCurrentMonthlySku());
-        skus.add(getCurrentLifetimeSku());
+        skus.add(getCurrentUnlockSku(app));
+        skus.add(getCurrentWeeklySku(app));
+        skus.add(getCurrentMonthlySku(app));
+        skus.add(getCurrentLifetimeSku(app));
 
         return skus;
     }
@@ -43,13 +60,13 @@ public class InAppProduct {
 
     public InAppProduct(SkuDetails googleProduct) {
         sku = googleProduct.getSku();
-        if (Arrays.asList(MonthlySubscriptionSkus).contains(sku)) {
+        if (MonthlySubscriptionSkus.containsValue(sku)) {
             embyFeatureCode = "MBSClubMonthly";
             period = SubscriptionPeriod.Monthly;
-        } else if (Arrays.asList(WeeklySubscriptionSkus).contains(sku)) {
+        } else if (WeeklySubscriptionSkus.containsValue(sku)) {
             embyFeatureCode = "MBSClubWeekly";
             period = SubscriptionPeriod.Weekly;
-        }  else if (Arrays.asList(LifetimeSubscriptionSkus).contains(sku)) {
+        }  else if (LifetimeSubscriptionSkus.containsValue(sku)) {
             embyFeatureCode = "MBSupporter";
         }
         productType = googleProduct.getType().equals("subs") ? ProductType.Subscription : ProductType.Product;

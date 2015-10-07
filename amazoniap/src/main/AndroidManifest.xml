@@ -2,7 +2,7 @@
 
     <application android:allowBackup="true" android:label="@string/app_name">
 
-        <activity android:name=".UnlockActivity" />
+        <activity android:name=".PurchaseActivity" />
     </application>
 
 </manifest>

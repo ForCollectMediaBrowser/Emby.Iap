@@ -36,12 +36,15 @@ public class IabValidator {
     private IResultHandler<ResultType> purchaseHandler;
     private IResultHandler<List<InAppProduct>> productHandler;
     private boolean disposed;
+    private Context context;
 
     private Activity purchaseActivity;
 
     public IabValidator(Context context, String key) {
         //key is not used for Amazon
+        this.context = context;
         PurchasingService.registerListener(context, new PurchasingListener(this));
+        PurchasingService.getProductData(InAppProduct.getCurrentSkus(context.getPackageName()));
         PurchasingService.getUserData();
     }
 
@@ -82,7 +85,7 @@ public class IabValidator {
     public void getAvailableProductsAsync(final IResultHandler<List<InAppProduct>> resultHandler) {
         Log.d("AmazonIap", "*** getAvailableProductsAsync");
         productHandler = resultHandler;
-        PurchasingService.getProductData(InAppProduct.getCurrentSkus());
+        PurchasingService.getProductData(InAppProduct.getCurrentSkus(context.getPackageName()));
     }
 
     public void handleProductResponse(ProductDataResponse response) {

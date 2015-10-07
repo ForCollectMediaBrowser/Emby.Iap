@@ -22,8 +22,10 @@ public class IabValidator {
     private boolean initialized;
     private String message;
     private boolean disposed;
+    private Context context;
 
     public IabValidator(Context context, String key) {
+        this.context = context;
         iabHelper = new IabHelper(context, key);
     }
 
@@ -93,7 +95,7 @@ public class IabValidator {
     }
 
     private void getProductsInternal(final IResultHandler<List<InAppProduct>> handler) {
-        iabHelper.queryInventoryAsync(true, InAppProduct.getCurrentSkus(), new IabHelper.QueryInventoryFinishedListener() {
+        iabHelper.queryInventoryAsync(true, InAppProduct.getCurrentSkus(context.getPackageName()), new IabHelper.QueryInventoryFinishedListener() {
             @Override
             public void onQueryInventoryFinished(IabResult result, Inventory inv) {
                 if (result.isFailure()) {

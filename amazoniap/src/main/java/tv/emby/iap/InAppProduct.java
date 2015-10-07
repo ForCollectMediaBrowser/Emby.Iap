@@ -6,6 +6,7 @@ import com.amazon.device.iap.model.Product;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,22 +22,38 @@ public class InAppProduct {
     private String description;
     private String price;
     private SubscriptionPeriod period;
-    private static String[] MonthlySubscriptionSkus = new String[] {"emby.supporter.monthly"};
-    private static String[] WeeklySubscriptionSkus = new String[] {"emby.supporter.weekly"};
-    private static String[] LifetimeSubscriptionSkus = new String[] {"emby.supporter.lifetime"};
-    private static String[] UnlockSkus = new String[] {"com.mb.android.unlock"};
+    private static HashMap<String,String> MonthlySubscriptionSkus = new HashMap<>();
+    static {
+        MonthlySubscriptionSkus.put("com.mb.android","emby.supporter.monthly");
+        MonthlySubscriptionSkus.put("tv.emby.embyatv","emby.supporter.atv.monthly");
+    }
+    private static HashMap<String,String> WeeklySubscriptionSkus = new HashMap<>();
+    static {
+        WeeklySubscriptionSkus.put("com.mb.android","emby.supporter.weekly");
+        WeeklySubscriptionSkus.put("tv.emby.embyatv","emby.supporter.atv.weekly");
+    }
+    private static HashMap<String,String> LifetimeSubscriptionSkus = new HashMap<>();
+    static {
+        LifetimeSubscriptionSkus.put("com.mb.android","emby.supporter.lifetime");
+        LifetimeSubscriptionSkus.put("tv.emby.embyatv","emby.supporter.atv.lifetime");
+    }
+    private static HashMap<String,String> UnlockSkus = new HashMap<>();
+    static {
+        UnlockSkus.put("com.mb.android","com.mb.android.unlock");
+        UnlockSkus.put("tv.emby.embyatv","tv.emby.embyatv.unlock");
+    }
 
-    public static String getCurrentMonthlySku() { return MonthlySubscriptionSkus[0]; }
-    public static String getCurrentWeeklySku() { return WeeklySubscriptionSkus[0]; }
-    public static String getCurrentLifetimeSku() { return LifetimeSubscriptionSkus[0]; }
-    public static String getCurrentUnlockSku() { return UnlockSkus[0]; }
+    public static String getCurrentMonthlySku(String app) { return MonthlySubscriptionSkus.get(app); }
+    public static String getCurrentWeeklySku(String app) { return WeeklySubscriptionSkus.get(app); }
+    public static String getCurrentLifetimeSku(String app) { return LifetimeSubscriptionSkus.get(app); }
+    public static String getCurrentUnlockSku(String app) { return UnlockSkus.get(app); }
 
-    public static Set<String> getCurrentSkus() {
+    public static Set<String> getCurrentSkus(String app) {
         HashSet<String> skus = new HashSet<>();
-        skus.add(getCurrentUnlockSku());
-        skus.add(getCurrentMonthlySku());
-        skus.add(getCurrentWeeklySku());
-        skus.add(getCurrentLifetimeSku());
+        skus.add(getCurrentUnlockSku(app));
+        skus.add(getCurrentMonthlySku(app));
+        skus.add(getCurrentWeeklySku(app));
+        skus.add(getCurrentLifetimeSku(app));
 
         return skus;
     }

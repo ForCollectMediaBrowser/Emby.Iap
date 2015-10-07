@@ -17,7 +17,7 @@ import tv.emby.iap.billing.IabHelper;
 import tv.emby.iap.billing.IabResult;
 import tv.emby.iap.billing.Purchase;
 
-public class UnlockActivity extends Activity {
+public class PurchaseActivity extends Activity {
 
     private IabHelper iabHelper;
 
