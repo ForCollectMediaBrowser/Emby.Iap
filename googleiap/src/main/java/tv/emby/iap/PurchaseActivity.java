@@ -20,7 +20,6 @@ public class PurchaseActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_unlock);
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("googleKey");
