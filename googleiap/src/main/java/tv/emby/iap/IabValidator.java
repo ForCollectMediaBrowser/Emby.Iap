@@ -75,6 +75,11 @@ public class IabValidator {
     };
 
     public void validateProductsAsync(final IResultHandler<ResultType> resultHandler) {
+        if (productsInitialized()) {
+            resultHandler.onResult(ResultType.Success);
+            return;
+        }
+
         if (!initialized) {
             iabHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
                 @Override
