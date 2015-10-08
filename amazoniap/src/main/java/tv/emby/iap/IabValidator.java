@@ -10,14 +10,9 @@ import com.amazon.device.iap.model.Product;
 import com.amazon.device.iap.model.ProductDataResponse;
 import com.amazon.device.iap.model.Receipt;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import tv.emby.iap.billing.PurchasingListener;
 
@@ -30,11 +25,11 @@ public class IabValidator {
 
     private String amazonUserId;
     private String amazonMarketplace;
-    private String productJson;
     private String sku;
     private String receiptId;
-    private IResultHandler<ResultType> purchaseHandler;
-    private IResultHandler<List<InAppProduct>> productHandler;
+    private List<InAppProduct> products;
+    private IResultHandler<PurchaseResult> purchaseHandler;
+    private IResultHandler<ResultType> productHandler;
     private boolean disposed;
     private Context context;
 
@@ -58,19 +53,10 @@ public class IabValidator {
     public boolean isDisposed() { return disposed; }
 
 
-    public void purchase(Activity activity, String productJson, IResultHandler<ResultType> handler) {
+    public void purchase(Activity activity, String sku, IResultHandler<PurchaseResult> handler) {
         purchaseActivity = activity;
         purchaseHandler = handler;
-        this.productJson = productJson;
-        try {
-            JSONObject product = new JSONObject(productJson);
-            sku = product.getString("sku");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            activity.finish();
-            return;
-        }
-
+        this.sku = sku;
         PurchasingService.purchase(sku);
     }
 
@@ -78,42 +64,91 @@ public class IabValidator {
         purchaseActivity.finish();
     }
 
-    public void setResult(ResultType result) {
-        purchaseHandler.onResult(result);
+    public void purchaseFailed(ErrorType type) {
+        if (purchaseHandler != null) purchaseHandler.onError(ErrorSeverity.Critical, type, "");
     }
 
-    public void getAvailableProductsAsync(final IResultHandler<List<InAppProduct>> resultHandler) {
-        Log.d("AmazonIap", "*** getAvailableProductsAsync");
-        productHandler = resultHandler;
-        PurchasingService.getProductData(InAppProduct.getCurrentSkus(context.getPackageName()));
+    public void productQueryFailed(ErrorType type) {
+        if (productHandler != null) productHandler.onError(ErrorSeverity.Critical, type, "");
     }
+
+    public void validateProductsAsync(IResultHandler<ResultType> handler) {
+        Log.d("AmazonIap", "*** validateProductsAsync");
+        if (productsInitialized()) {
+            handler.onResult(ResultType.Success);
+        } else {
+            productHandler = handler;
+            PurchasingService.getProductData(InAppProduct.getCurrentSkus(context.getPackageName()));
+        }
+    }
+
+    public boolean productsInitialized() { return products != null; }
 
     public void handleProductResponse(ProductDataResponse response) {
         Log.d("AmazonIap", "*** handleProductResponse - " + response.getRequestStatus());
-        if (productHandler == null) return;
 
         final ProductDataResponse.RequestStatus status = response.getRequestStatus();
 
         switch (status) {
             case SUCCESSFUL:
-                List<InAppProduct> products = new ArrayList<>();
+                 products = new ArrayList<>();
                 final Map<String,Product> amazonProducts = response.getProductData();
                 for (String key : amazonProducts.keySet()) {
                     Product product = amazonProducts.get(key);
                     if (!product.getTitle().contains("inactive")) products.add(new InAppProduct(product));
                 }
-                productHandler.onResult(products);
+
+                if (productHandler != null) productHandler.onResult(ResultType.Success);
                 break;
             case FAILED:
             case NOT_SUPPORTED:
-                productHandler.onError(ErrorSeverity.Critical, ErrorType.UnableToConnectToStore, response.toString());
+                if (productHandler != null) productHandler.onError(ErrorSeverity.Critical, ErrorType.UnableToConnectToStore, response.toString());
                 break;
         }
 
     }
 
+    public InAppProduct getPremiereMonthly() {
+        if (!productsInitialized()) return null;
 
-    public void checkInAppPurchase(String sku, IResultHandler<ResultType> resultHandler) {
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentMonthlySku(context.getPackageName()))) return product;
+        }
+
+        return null;
+    }
+
+    public InAppProduct getPremiereWeekly() {
+        if (!productsInitialized()) return null;
+
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentWeeklySku(context.getPackageName()))) return product;
+        }
+
+        return null;
+    }
+
+    public InAppProduct getPremiereLifetime() {
+        if (!productsInitialized()) return null;
+
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentLifetimeSku(context.getPackageName()))) return product;
+        }
+
+        return null;
+    }
+
+    public InAppProduct getUnlockProduct() {
+        if (!productsInitialized()) return null;
+
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentUnlockSku(context.getPackageName()))) return product;
+        }
+
+        return null;
+    }
+
+    public void checkInAppPurchase(String sku, IResultHandler<PurchaseResult> resultHandler) {
         this.sku = sku;
         this.purchaseHandler = resultHandler;
         Log.d("AmazonIap", "*** checkInAppPurchase - " + sku);
@@ -122,15 +157,19 @@ public class IabValidator {
 
     public void handleReceipt(Receipt receipt, boolean fulfill) {
         Log.d("AmazonIap", "*** handleReceipt - "+receipt.getSku());
+        PurchaseResult result = new PurchaseResult();
         if (receipt.isCanceled()) {
-            purchaseHandler.onResult(ResultType.Canceled);
+            result.setResultCode(ResultType.Canceled);
+            purchaseHandler.onResult(result);
         } else {
             if (receipt.getSku().equals(sku)) {
                 if (fulfill) {
                     PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
                 }
-                this.receiptId = receipt.getReceiptId();
-                purchaseHandler.onResult(ResultType.Success);
+                result.setResultCode(ResultType.Success);
+                result.setStoreToken(receipt.getReceiptId());
+                result.setStoreId(this.amazonUserId);
+                purchaseHandler.onResult(result);
             } else {
                 purchaseHandler.onError(ErrorSeverity.Critical, ErrorType.InvalidProduct, "Invalid sku reported: " + receipt.getSku());
                 PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.UNAVAILABLE);

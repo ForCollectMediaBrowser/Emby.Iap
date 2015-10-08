@@ -64,17 +64,17 @@ public class InAppProduct {
 
     public InAppProduct(Product amazonProduct) {
         sku = amazonProduct.getSku();
-        if (Arrays.asList(MonthlySubscriptionSkus).contains(sku)) {
+        if (MonthlySubscriptionSkus.values().contains(sku)) {
             embyFeatureCode = "MBSClubMonthly";
             period = SubscriptionPeriod.Monthly;
-        } else if (Arrays.asList(WeeklySubscriptionSkus).contains(sku)) {
+        } else if (WeeklySubscriptionSkus.values().contains(sku)) {
             embyFeatureCode = "MBSClubWeekly";
             period = SubscriptionPeriod.Weekly;
-        } else if (Arrays.asList(LifetimeSubscriptionSkus).contains(sku)) {
+        } else if (LifetimeSubscriptionSkus.values().contains(sku)) {
             embyFeatureCode = "MBSupporter";
         }
         Log.d("InAppProduct", "ProductType: "+ amazonProduct.getProductType());
-        productType = amazonProduct.getProductType().equals("subs") ? ProductType.Subscription : ProductType.Product;
+        productType = amazonProduct.getProductType().equals(com.amazon.device.iap.model.ProductType.SUBSCRIPTION) ? ProductType.Subscription : ProductType.Product;
         title = amazonProduct.getTitle();
         description = amazonProduct.getDescription();
         price = amazonProduct.getPrice();
@@ -84,55 +84,28 @@ public class InAppProduct {
         return sku;
     }
 
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
-
     public String getEmbyFeatureCode() {
         return embyFeatureCode;
-    }
-
-    public void setEmbyFeatureCode(String embyFeatureCode) {
-        this.embyFeatureCode = embyFeatureCode;
     }
 
     public ProductType getProductType() {
         return productType;
     }
 
-    public void setProductType(ProductType productType) {
-        this.productType = productType;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getPrice() {
         return price;
-    }
-
-    public void setPrice(String price) {
-        this.price = price;
     }
 
     public SubscriptionPeriod getPeriod() {
         return period;
     }
 
-    public void setPeriod(SubscriptionPeriod period) {
-        this.period = period;
-    }
 }

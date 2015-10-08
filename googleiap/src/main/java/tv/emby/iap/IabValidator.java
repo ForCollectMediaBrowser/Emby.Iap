@@ -19,6 +19,7 @@ public class IabValidator {
     private IabHelper iabHelper;
     private IResultHandler<ResultType> purchaseCheckHandler;
     private String sku;
+    private List<InAppProduct> products;
     private boolean initialized;
     private String message;
     private boolean disposed;
@@ -66,14 +67,14 @@ public class IabValidator {
                 purchaseCheckHandler.onError(ErrorSeverity.Critical, ErrorType.UnableToValidatePurchase, result.getMessage());
             }
             else {
-                // set our indicator of paid status
+                // call handler
                 purchaseCheckHandler.onResult(inventory.hasPurchase(sku) ? ResultType.Success : ResultType.Failure);
             }
 
         }
     };
 
-    public void getAvailableProductsAsync(final IResultHandler<List<InAppProduct>> resultHandler) {
+    public void validateProductsAsync(final IResultHandler<ResultType> resultHandler) {
         if (!initialized) {
             iabHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
                 @Override
@@ -94,7 +95,7 @@ public class IabValidator {
 
     }
 
-    private void getProductsInternal(final IResultHandler<List<InAppProduct>> handler) {
+    private void getProductsInternal(final IResultHandler<ResultType> handler) {
         iabHelper.queryInventoryAsync(true, InAppProduct.getCurrentSkus(context.getPackageName()), new IabHelper.QueryInventoryFinishedListener() {
             @Override
             public void onQueryInventoryFinished(IabResult result, Inventory inv) {
@@ -102,16 +103,58 @@ public class IabValidator {
                     handler.onError(ErrorSeverity.Critical, ErrorType.General, result.getMessage());
                 } else {
                     // Build our list of products to return
-                    List<InAppProduct> products = new ArrayList<>();
+                    products = new ArrayList<>();
                     for (SkuDetails googleProduct : inv.getAllProducts()) {
                         if (!googleProduct.getTitle().contains("inactive")) products.add(new InAppProduct(googleProduct));
                     }
 
-                    handler.onResult(products);
+                    handler.onResult(ResultType.Success);
                 }
             }
         });
 
+    }
+
+    public boolean productsInitialized() { return products != null; }
+
+    public InAppProduct getPremiereMonthly() {
+        if (!productsInitialized()) return null;
+
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentMonthlySku(context.getPackageName()))) return product;
+        }
+
+        return null;
+    }
+
+    public InAppProduct getPremiereWeekly() {
+        if (!productsInitialized()) return null;
+
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentWeeklySku(context.getPackageName()))) return product;
+        }
+
+        return null;
+    }
+
+    public InAppProduct getPremiereLifetime() {
+        if (!productsInitialized()) return null;
+
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentLifetimeSku(context.getPackageName()))) return product;
+        }
+
+        return null;
+    }
+
+    public InAppProduct getUnlockProduct() {
+        if (!productsInitialized()) return null;
+
+        for (InAppProduct product : products) {
+            if (product.getSku().equals(InAppProduct.getCurrentUnlockSku(context.getPackageName()))) return product;
+        }
+
+        return null;
     }
 
     public void dispose() {

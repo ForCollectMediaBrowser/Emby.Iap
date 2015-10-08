@@ -11,7 +11,7 @@ import com.amazon.device.iap.model.UserDataResponse;
 
 import org.json.JSONException;
 
-import tv.emby.iap.R;
+import tv.emby.iap.ErrorType;
 import tv.emby.iap.IabValidator;
 import tv.emby.iap.ResultType;
 
@@ -82,7 +82,7 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
         case SUCCESSFUL:
             iapManager.setAmazonUserId(response.getUserData().getUserId(), response.getUserData().getMarketplace());
             if (response.getReceipts().size() == 0) {
-                iapManager.setResult(ResultType.Failure);
+                iapManager.productQueryFailed(ErrorType.InvalidProduct);
             } else {
                 for (final Receipt receipt : response.getReceipts()) {
                     iapManager.handleReceipt(receipt, false);
@@ -94,7 +94,7 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
             break;
         case FAILED:
         case NOT_SUPPORTED:
-            iapManager.setResult(ResultType.Failure);
+            iapManager.productQueryFailed(ErrorType.General);
             break;
         }
 
@@ -122,11 +122,11 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
                 iapManager.handleReceipt(receipt, true);
                 break;
             case INVALID_SKU:
-                iapManager.setResult(ResultType.Failure);
+                iapManager.purchaseFailed(ErrorType.InvalidProduct);
                 break;
             case FAILED:
             case NOT_SUPPORTED:
-                iapManager.setResult(ResultType.Failure);
+                iapManager.purchaseFailed(ErrorType.UnableToCompletePurchase);
                 break;
         }
         iapManager.purchaseComplete();

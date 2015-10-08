@@ -3,12 +3,7 @@ package tv.emby.iap;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.UUID;
 
@@ -29,18 +24,7 @@ public class PurchaseActivity extends Activity {
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("googleKey");
-        final String productJson = intent.getStringExtra("product");
-        final String sku;
-        JSONObject product;
-        try {
-            product = new JSONObject(productJson);
-            sku = product.getString("sku");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            finish();
-            return;
-        }
-
+        final String sku = intent.getStringExtra("sku");
 
         final Activity activity = this;
         iabHelper = new IabHelper(this, key);
@@ -67,7 +51,6 @@ public class PurchaseActivity extends Activity {
                         } else {
                             if (info.getSku().equals(sku) && info.getDeveloperPayload().equals(check)) {
                                 Intent success = new Intent();
-                                success.putExtra("product", productJson);
                                 success.putExtra("storeToken", info.getToken());
                                 success.putExtra("store", "Google");
                                 setResult(RESULT_OK, success);
