@@ -30,6 +30,7 @@ public class IabValidator {
     private List<InAppProduct> products;
     private IResultHandler<PurchaseResult> purchaseHandler;
     private IResultHandler<ResultType> productHandler;
+    private IResultHandler<ResultType> purchaseCheckHandler;
     private boolean disposed;
     private Context context;
 
@@ -69,7 +70,10 @@ public class IabValidator {
     }
 
     public void productQueryFailed(ErrorType type) {
-        if (productHandler != null) productHandler.onError(ErrorSeverity.Critical, type, "");
+        if (productHandler != null) {
+            if (type == ErrorType.NoReceipts) productHandler.onResult(ResultType.Failure);
+            else productHandler.onError(ErrorSeverity.Critical, type, "");
+        }
     }
 
     public void validateProductsAsync(IResultHandler<ResultType> handler) {
@@ -148,14 +152,18 @@ public class IabValidator {
         return null;
     }
 
-    public void checkInAppPurchase(String sku, IResultHandler<PurchaseResult> resultHandler) {
+    public void checkInAppPurchase(String sku, IResultHandler<ResultType> resultHandler) {
         this.sku = sku;
-        this.purchaseHandler = resultHandler;
+        this.purchaseCheckHandler = resultHandler;
         Log.d("AmazonIap", "*** checkInAppPurchase - " + sku);
         PurchasingService.getPurchaseUpdates(true);
     }
 
-    public void handleReceipt(Receipt receipt, boolean fulfill) {
+    public void checkReceipt(Receipt receipt) {
+        if (receipt.getSku().equals(sku) && purchaseCheckHandler != null) purchaseCheckHandler.onResult(ResultType.Success);
+    }
+
+    public void handleReceipt(Receipt receipt) {
         Log.d("AmazonIap", "*** handleReceipt - "+receipt.getSku());
         PurchaseResult result = new PurchaseResult();
         if (receipt.isCanceled()) {
@@ -163,9 +171,7 @@ public class IabValidator {
             purchaseHandler.onResult(result);
         } else {
             if (receipt.getSku().equals(sku)) {
-                if (fulfill) {
-                    PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
-                }
+                PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
                 result.setResultCode(ResultType.Success);
                 result.setStoreToken(receipt.getReceiptId());
                 result.setStoreId(this.amazonUserId);

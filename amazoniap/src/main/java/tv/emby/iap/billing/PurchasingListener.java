@@ -82,10 +82,10 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
         case SUCCESSFUL:
             iapManager.setAmazonUserId(response.getUserData().getUserId(), response.getUserData().getMarketplace());
             if (response.getReceipts().size() == 0) {
-                iapManager.productQueryFailed(ErrorType.InvalidProduct);
+                iapManager.productQueryFailed(ErrorType.NoReceipts);
             } else {
                 for (final Receipt receipt : response.getReceipts()) {
-                    iapManager.handleReceipt(receipt, false);
+                    iapManager.checkReceipt(receipt);
                 }
                 if (response.hasMore()) {
                     PurchasingService.getPurchaseUpdates(true);
@@ -119,7 +119,7 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
             case ALREADY_PURCHASED:
                 final Receipt receipt = response.getReceipt();
                 iapManager.setAmazonUserId(response.getUserData().getUserId(), response.getUserData().getMarketplace());
-                iapManager.handleReceipt(receipt, true);
+                iapManager.handleReceipt(receipt);
                 break;
             case INVALID_SKU:
                 iapManager.purchaseFailed(ErrorType.InvalidProduct);

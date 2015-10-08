@@ -4,6 +4,6 @@ public enum ErrorType {
     UnableToConnectToStore,
     UnableToCompletePurchase,
     UnableToValidatePurchase,
-    InvalidProduct, General, UserCancelled
+    InvalidProduct, General, NoReceipts, UserCancelled
 
 }
