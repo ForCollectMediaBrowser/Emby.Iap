@@ -27,7 +27,8 @@ public class PurchaseActivity extends Activity {
                         setResult(RESULT_OK);
                         Intent success = new Intent();
                         success.putExtra("storeToken", result.getStoreToken());
-                        success.putExtra("store", "Google");
+                        success.putExtra("storeId", iabValidator.getAmazonUserId());
+                        success.putExtra("store", "Amazon");
                         setResult(RESULT_OK, success);
                         break;
                     case Canceled:

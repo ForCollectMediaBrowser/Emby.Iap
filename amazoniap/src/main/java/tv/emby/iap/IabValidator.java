@@ -170,16 +170,11 @@ public class IabValidator {
             result.setResultCode(ResultType.Canceled);
             purchaseHandler.onResult(result);
         } else {
-            if (receipt.getSku().equals(sku)) {
-                PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
-                result.setResultCode(ResultType.Success);
-                result.setStoreToken(receipt.getReceiptId());
-                result.setStoreId(this.amazonUserId);
-                purchaseHandler.onResult(result);
-            } else {
-                purchaseHandler.onError(ErrorSeverity.Critical, ErrorType.InvalidProduct, "Invalid sku reported: " + receipt.getSku());
-                PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.UNAVAILABLE);
-            }
+            PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
+            result.setResultCode(ResultType.Success);
+            result.setStoreToken(receipt.getReceiptId());
+            result.setStoreId(this.amazonUserId);
+            purchaseHandler.onResult(result);
         }
     }
 
