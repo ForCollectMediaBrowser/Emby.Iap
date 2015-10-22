@@ -15,7 +15,9 @@ import tv.emby.iap.billing.Purchase;
 public class PurchaseActivity extends Activity {
 
     private IabHelper iabHelper;
-
+    private String sku;
+    private Activity activity;
+    private String check;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +25,9 @@ public class PurchaseActivity extends Activity {
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("googleKey");
-        final String sku = intent.getStringExtra("sku");
+        sku = intent.getStringExtra("sku");
 
-        final Activity activity = this;
+        activity = this;
         iabHelper = new IabHelper(this, key);
 
         iabHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
@@ -37,35 +39,43 @@ public class PurchaseActivity extends Activity {
                     finish();
                     return;
                 }
-                final String check = UUID.randomUUID().toString();
-                iabHelper.launchPurchaseFlow(activity, sku, 1000, new IabHelper.OnIabPurchaseFinishedListener() {
-                    @Override
-                    public void onIabPurchaseFinished(IabResult result, Purchase info) {
-                        if (!result.isSuccess()) {
-                            if (!result.getMessage().contains("-1005")) { // make sure it isn't just user cancelled
-                                Toast.makeText(getApplicationContext(), "Error completing purchase.  Please try later.", Toast.LENGTH_LONG).show();
-                            }
-
-                            setResult(RESULT_CANCELED);
-                        } else {
-                            if (info.getSku().equals(sku) && info.getDeveloperPayload().equals(check)) {
-                                Intent success = new Intent();
-                                success.putExtra("storeToken", info.getToken());
-                                success.putExtra("store", "Google");
-                                setResult(RESULT_OK, success);
-                            } else {
-                                Intent error = new Intent();
-                                error.putExtra("data", info.getOriginalJson());
-                                setResult(RESULT_CANCELED, error);
-                            }
+                check = UUID.randomUUID().toString();
+                if (InAppProduct.isSubscription(sku)) {
+                    iabHelper.launchSubscriptionPurchaseFlow(activity, sku, 1000, new IabHelper.OnIabPurchaseFinishedListener() {
+                        @Override
+                        public void onIabPurchaseFinished(IabResult result, Purchase info) {
+                            processPurchaseResult(result, info);
                         }
-                        activity.finish();
-                    }
+                    }, check);
+                } else {
+                    iabHelper.launchPurchaseFlow(activity, sku, 1000, new IabHelper.OnIabPurchaseFinishedListener() {
+                        @Override
+                        public void onIabPurchaseFinished(IabResult result, Purchase info) {
+                            processPurchaseResult(result, info);
+                        }
 
 
-                }, check);
+                    }, check);
+                }
             }
         });
+
+    }
+
+    private void processPurchaseResult(IabResult result, Purchase info) {
+        if (!result.isSuccess()) {
+            if (!result.getMessage().contains("-1005")) { // make sure it isn't just user cancelled
+                Toast.makeText(getApplicationContext(), "Error completing purchase.  Please try later.", Toast.LENGTH_LONG).show();
+            }
+
+            setResult(RESULT_CANCELED);
+        } else {
+            Intent success = new Intent();
+            success.putExtra("storeToken", info.getToken());
+            success.putExtra("store", "Google");
+            setResult(RESULT_OK, success);
+        }
+        activity.finish();
 
     }
 

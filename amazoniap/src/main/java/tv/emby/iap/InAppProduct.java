@@ -62,6 +62,10 @@ public class InAppProduct {
         return embyFeatureCode != null;
     }
 
+    public static boolean isSubscription(String sku) {
+        return WeeklySubscriptionSkus.values().contains(sku) || MonthlySubscriptionSkus.values().contains(sku);
+    }
+
     public InAppProduct(Product amazonProduct) {
         sku = amazonProduct.getSku();
         if (MonthlySubscriptionSkus.values().contains(sku)) {

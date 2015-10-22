@@ -54,6 +54,10 @@ public class InAppProduct {
         return skus;
     }
 
+    public static boolean isSubscription(String sku) {
+        return WeeklySubscriptionSkus.values().contains(sku) || MonthlySubscriptionSkus.values().contains(sku);
+    }
+
     public boolean requiresEmail() {
         return embyFeatureCode != null;
     }
