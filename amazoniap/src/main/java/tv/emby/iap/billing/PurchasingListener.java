@@ -112,13 +112,14 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
      */
     @Override
     public void onPurchaseResponse(final PurchaseResponse response) {
+        Log.d("AmazonIap", "*** onPurchaseResponse - "+response.getRequestStatus());
         final PurchaseResponse.RequestStatus status = response.getRequestStatus();
 
         switch (status) {
             case SUCCESSFUL:
             case ALREADY_PURCHASED:
                 final Receipt receipt = response.getReceipt();
-                iapManager.setAmazonUserId(response.getUserData().getUserId(), response.getUserData().getMarketplace());
+                if (response.getUserData() != null) iapManager.setAmazonUserId(response.getUserData().getUserId(), response.getUserData().getMarketplace());
                 iapManager.handleReceipt(receipt);
                 break;
             case INVALID_SKU:

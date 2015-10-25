@@ -164,9 +164,9 @@ public class IabValidator {
     }
 
     public void handleReceipt(Receipt receipt) {
-        Log.d("AmazonIap", "*** handleReceipt - "+receipt.getSku());
+        Log.d("AmazonIap", "*** handleReceipt - "+ (receipt != null ? receipt.getSku() : "<no receipt data>"));
         PurchaseResult result = new PurchaseResult();
-        if (receipt.isCanceled()) {
+        if (receipt == null || receipt.isCanceled()) {
             result.setResultCode(ResultType.Canceled);
             purchaseHandler.onResult(result);
         } else {
