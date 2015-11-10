@@ -22,6 +22,7 @@ public class InAppProduct {
     static {
         MonthlySubscriptionSkus.put("com.mb.android","emby.supporter.monthly");
         MonthlySubscriptionSkus.put("tv.emby.embyatv","emby.supporter.atv.monthly");
+        MonthlySubscriptionSkus.put("com.emby.mobile","emby.supporter.mobile.monthly");
     }
     private static HashMap<String,String> WeeklySubscriptionSkus = new HashMap<>();
     static {
@@ -37,6 +38,7 @@ public class InAppProduct {
     static {
         UnlockSkus.put("com.mb.android","com.mb.android.unlock");
         UnlockSkus.put("tv.emby.embyatv","tv.emby.embyatv.unlock");
+        UnlockSkus.put("com.emby.mobile","com.emby.mobile.unlock");
     }
 
     public static String getCurrentMonthlySku(String app) { return MonthlySubscriptionSkus.get(app); }
