@@ -49,9 +49,8 @@ public class InAppProduct {
     public static List<String> getCurrentSkus(String app) {
         List<String> skus = new ArrayList<>();
         skus.add(getCurrentUnlockSku(app));
-        skus.add(getCurrentWeeklySku(app));
         skus.add(getCurrentMonthlySku(app));
-        skus.add(getCurrentLifetimeSku(app));
+        //skus.add(getCurrentLifetimeSku(app));
 
         return skus;
     }
