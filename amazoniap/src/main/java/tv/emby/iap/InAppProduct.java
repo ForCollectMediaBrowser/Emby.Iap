@@ -28,6 +28,12 @@ public class InAppProduct {
         MonthlySubscriptionSkus.put("tv.emby.embyatv","emby.premiere.atv.monthly");
         MonthlySubscriptionSkus.put("com.emby.mobile","emby.premiere.monthly");
     }
+    private static HashMap<String,String> ParentSubscriptionSkus = new HashMap<>();
+    static {
+        MonthlySubscriptionSkus.put("com.mb.android","emby.supporter");
+        MonthlySubscriptionSkus.put("tv.emby.embyatv","emby.premiere.atv");
+        MonthlySubscriptionSkus.put("com.emby.mobile","emby.premiere");
+    }
     private static HashMap<String,String> WeeklySubscriptionSkus = new HashMap<>();
     static {
         WeeklySubscriptionSkus.put("com.mb.android","emby.supporter.weekly");
@@ -47,6 +53,7 @@ public class InAppProduct {
     }
 
     public static String getCurrentMonthlySku(String app) { return MonthlySubscriptionSkus.get(app); }
+    public static String getCurrentSubscriptionSku(String app) { return ParentSubscriptionSkus.get(app); }
     public static String getCurrentWeeklySku(String app) { return WeeklySubscriptionSkus.get(app); }
     public static String getCurrentLifetimeSku(String app) { return LifetimeSubscriptionSkus.get(app); }
     public static String getCurrentUnlockSku(String app) { return UnlockSkus.get(app); }

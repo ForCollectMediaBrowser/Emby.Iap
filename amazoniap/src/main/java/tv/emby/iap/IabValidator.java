@@ -153,14 +153,20 @@ public class IabValidator {
     }
 
     public void checkInAppPurchase(String sku, IResultHandler<ResultType> resultHandler) {
-        this.sku = sku;
+        this.sku = sku.equals(InAppProduct.getCurrentMonthlySku(context.getPackageName())) ? InAppProduct.getCurrentSubscriptionSku(context.getPackageName()) : sku;
         this.purchaseCheckHandler = resultHandler;
         Log.d("AmazonIap", "*** checkInAppPurchase - " + sku);
         PurchasingService.getPurchaseUpdates(true);
     }
 
-    public void checkReceipt(Receipt receipt) {
-        if (receipt.getSku().equals(sku) && purchaseCheckHandler != null) purchaseCheckHandler.onResult(ResultType.Success);
+    public void checkReceipts(List<Receipt> receipts) {
+        for (Receipt receipt : receipts){
+            if (receipt.getSku().equals(sku) && purchaseCheckHandler != null) {
+                purchaseCheckHandler.onResult(ResultType.Success);
+                return;
+            }
+        }
+        if (purchaseCheckHandler != null) purchaseCheckHandler.onResult(ResultType.Failure);
     }
 
     public void handleReceipt(Receipt receipt) {

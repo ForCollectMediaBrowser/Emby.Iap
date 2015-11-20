@@ -11,6 +11,9 @@ import com.amazon.device.iap.model.UserDataResponse;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import tv.emby.iap.ErrorType;
 import tv.emby.iap.IabValidator;
 import tv.emby.iap.ResultType;
@@ -61,6 +64,8 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
         iapManager.handleProductResponse(response);
     }
 
+    private List<Receipt> currentReceipts = new ArrayList<>();
+
     /**
      * This is the callback for {@link com.amazon.device.iap.PurchasingService#getPurchaseUpdates}.
      * 
@@ -84,11 +89,11 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
             if (response.getReceipts().size() == 0) {
                 iapManager.productQueryFailed(ErrorType.NoReceipts);
             } else {
-                for (final Receipt receipt : response.getReceipts()) {
-                    iapManager.checkReceipt(receipt);
-                }
+                currentReceipts.addAll(response.getReceipts());
                 if (response.hasMore()) {
                     PurchasingService.getPurchaseUpdates(true);
+                } else {
+                    iapManager.checkReceipts(currentReceipts);
                 }
             }
             break;
