@@ -8,6 +8,7 @@ public class PurchaseActivity extends Activity {
 
     private IabValidator iabValidator;
 
+    public static ILogger Logger = new LogcatLogger();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,7 +17,7 @@ public class PurchaseActivity extends Activity {
         Intent intent = getIntent();
         final String sku = intent.getStringExtra("sku");
 
-        iabValidator = new IabValidator(this, "");
+        iabValidator = new IabValidator(this, "", Logger);
 
         iabValidator.purchase(this, sku, new IResultHandler<PurchaseResult>() {
             @Override

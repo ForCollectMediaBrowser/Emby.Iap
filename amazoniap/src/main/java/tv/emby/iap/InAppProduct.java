@@ -75,7 +75,7 @@ public class InAppProduct {
         return WeeklySubscriptionSkus.values().contains(sku) || MonthlySubscriptionSkus.values().contains(sku);
     }
 
-    public InAppProduct(Product amazonProduct) {
+    public InAppProduct(Product amazonProduct, ILogger logger) {
         sku = amazonProduct.getSku();
         if (MonthlySubscriptionSkus.values().contains(sku)) {
             embyFeatureCode = "MBSClubMonthly";
@@ -86,7 +86,7 @@ public class InAppProduct {
         } else if (LifetimeSubscriptionSkus.values().contains(sku)) {
             embyFeatureCode = "MBSupporter";
         }
-        Log.d("InAppProduct", "ProductType: "+ amazonProduct.getProductType());
+        logger.d("InAppProduct", "ProductType: "+ amazonProduct.getProductType());
         productType = amazonProduct.getProductType().equals(com.amazon.device.iap.model.ProductType.SUBSCRIPTION) ? ProductType.Subscription : ProductType.Product;
         title = amazonProduct.getTitle();
         description = amazonProduct.getDescription();

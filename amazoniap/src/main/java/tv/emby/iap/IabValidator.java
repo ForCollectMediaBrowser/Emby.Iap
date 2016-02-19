@@ -34,12 +34,15 @@ public class IabValidator {
     private boolean disposed;
     private Context context;
 
+    private final ILogger logger;
+
     private Activity purchaseActivity;
 
-    public IabValidator(Context context, String key) {
+    public IabValidator(Context context, String key, ILogger logger) {
         //key is not used for Amazon
         this.context = context;
-        PurchasingService.registerListener(context, new PurchasingListener(this));
+        this.logger = logger;
+        PurchasingService.registerListener(context, new PurchasingListener(this, logger));
         PurchasingService.getProductData(InAppProduct.getCurrentSkus(context.getPackageName()));
         PurchasingService.getUserData();
     }
@@ -77,7 +80,7 @@ public class IabValidator {
     }
 
     public void validateProductsAsync(IResultHandler<ResultType> handler) {
-        Log.d("AmazonIap", "*** validateProductsAsync");
+        logger.d("AmazonIap", "*** validateProductsAsync");
         if (productsInitialized()) {
             handler.onResult(ResultType.Success);
         } else {
@@ -89,7 +92,7 @@ public class IabValidator {
     public boolean productsInitialized() { return products != null; }
 
     public void handleProductResponse(ProductDataResponse response) {
-        Log.d("AmazonIap", "*** handleProductResponse - " + response.getRequestStatus());
+        logger.d("AmazonIap", "*** handleProductResponse - " + response.getRequestStatus());
 
         final ProductDataResponse.RequestStatus status = response.getRequestStatus();
 
@@ -99,7 +102,7 @@ public class IabValidator {
                 final Map<String,Product> amazonProducts = response.getProductData();
                 for (String key : amazonProducts.keySet()) {
                     Product product = amazonProducts.get(key);
-                    if (!product.getTitle().contains("inactive")) products.add(new InAppProduct(product));
+                    if (!product.getTitle().contains("inactive")) products.add(new InAppProduct(product, logger));
                 }
 
                 if (productHandler != null) productHandler.onResult(ResultType.Success);
@@ -155,7 +158,7 @@ public class IabValidator {
     public void checkInAppPurchase(String sku, IResultHandler<ResultType> resultHandler) {
         this.sku = sku.equals(InAppProduct.getCurrentMonthlySku(context.getPackageName())) ? InAppProduct.getCurrentSubscriptionSku(context.getPackageName()) : sku;
         this.purchaseCheckHandler = resultHandler;
-        Log.d("AmazonIap", "*** checkInAppPurchase - " + sku);
+        logger.d("AmazonIap", "*** checkInAppPurchase - " + sku);
         PurchasingService.getPurchaseUpdates(true);
     }
 
@@ -170,7 +173,7 @@ public class IabValidator {
     }
 
     public void handleReceipt(Receipt receipt) {
-        Log.d("AmazonIap", "*** handleReceipt - "+ (receipt != null ? receipt.getSku() : "<no receipt data>"));
+        logger.d("AmazonIap", "*** handleReceipt - "+ (receipt != null ? receipt.getSku() : "<no receipt data>"));
         PurchaseResult result = new PurchaseResult();
         if (receipt == null || receipt.isCanceled()) {
             result.setResultCode(ResultType.Canceled);

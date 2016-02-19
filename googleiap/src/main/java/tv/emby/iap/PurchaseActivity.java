@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import java.util.UUID;
 
-import tv.emby.googleiap.R;
 import tv.emby.iap.billing.IabHelper;
 import tv.emby.iap.billing.IabResult;
 import tv.emby.iap.billing.Purchase;
@@ -19,6 +18,8 @@ public class PurchaseActivity extends Activity {
     private Activity activity;
     private String check;
 
+    public static ILogger Logger = new LogcatLogger();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +29,7 @@ public class PurchaseActivity extends Activity {
         sku = intent.getStringExtra("sku");
 
         activity = this;
-        iabHelper = new IabHelper(this, key);
+        iabHelper = new IabHelper(this, key, Logger);
 
         iabHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             @Override

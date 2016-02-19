@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tv.emby.iap.ErrorType;
+import tv.emby.iap.ILogger;
 import tv.emby.iap.IabValidator;
 import tv.emby.iap.ResultType;
 
@@ -26,9 +27,11 @@ import tv.emby.iap.ResultType;
 public class PurchasingListener implements com.amazon.device.iap.PurchasingListener {
 
     private final IabValidator iapManager;
+    private final ILogger logger;
 
-    public PurchasingListener(final IabValidator iapManager) {
+    public PurchasingListener(final IabValidator iapManager, ILogger logger) {
         this.iapManager = iapManager;
+        this.logger = logger;
     }
 
     /**
@@ -78,7 +81,7 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
     @Override
     public void onPurchaseUpdatesResponse(final PurchaseUpdatesResponse response) {
         try {
-            Log.d("AmazonIap", "*** purchaseUpdatesResponse - " + response.toJSON());
+            logger.d("AmazonIap", "*** purchaseUpdatesResponse - " + response.toJSON());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -117,7 +120,7 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
      */
     @Override
     public void onPurchaseResponse(final PurchaseResponse response) {
-        Log.d("AmazonIap", "*** onPurchaseResponse - "+response.getRequestStatus());
+        logger.d("AmazonIap", "*** onPurchaseResponse - "+response.getRequestStatus());
         final PurchaseResponse.RequestStatus status = response.getRequestStatus();
 
         switch (status) {

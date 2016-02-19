@@ -25,9 +25,9 @@ public class IabValidator {
     private boolean disposed;
     private Context context;
 
-    public IabValidator(Context context, String key) {
+    public IabValidator(Context context, String key, ILogger logger) {
         this.context = context;
-        iabHelper = new IabHelper(context, key);
+        iabHelper = new IabHelper(context, key, logger);
     }
 
     public boolean isDisposed() { return disposed; }

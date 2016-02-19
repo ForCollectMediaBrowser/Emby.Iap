@@ -32,6 +32,7 @@ import android.util.Log;
 import com.android.vending.billing.IInAppBillingService;
 
 import org.json.JSONException;
+import tv.emby.iap.ILogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +71,10 @@ import java.util.List;
  *
  */
 public class IabHelper {
+
     // Is debug logging enabled?
     boolean mDebugLog = false;
+    private ILogger logger;
     String mDebugTag = "IabHelper";
 
     // Is setup done?
@@ -153,14 +156,14 @@ public class IabHelper {
      * Creates an instance. After creation, it will not yet be ready to use. You must perform
      * setup by calling {@link #startSetup} and wait for setup to complete. This constructor does not
      * block and is safe to call from a UI thread.
-     *
-     * @param ctx Your application or Activity context. Needed to bind to the in-app billing service.
+     *  @param ctx Your application or Activity context. Needed to bind to the in-app billing service.
+     * @param logger
      * @param base64PublicKey Your application's public key, encoded in base64.
      *     This is used for verification of purchase signatures. You can find your app's base64-encoded
      *     public key in your application's page on Google Play Developer Console. Note that this
-     *     is NOT your "developer public key".
      */
-    public IabHelper(Context ctx, String base64PublicKey) {
+    public IabHelper(Context ctx, String base64PublicKey, ILogger logger) {
+        this.logger = logger;
         mContext = ctx.getApplicationContext();
         mSignatureBase64 = base64PublicKey;
         logDebug("IAB helper created.");
@@ -457,9 +460,9 @@ public class IabHelper {
 
         if (resultCode == Activity.RESULT_OK && responseCode == BILLING_RESPONSE_RESULT_OK) {
             logDebug("Successful resultcode from purchase activity.");
-            logDebug("Purchase data: " + purchaseData);
-            logDebug("Data signature: " + dataSignature);
-            logDebug("Extras: " + data.getExtras());
+            logDebugIfEnabled("Purchase data: " + purchaseData);
+            logDebugIfEnabled("Data signature: " + dataSignature);
+            logDebugIfEnabled("Extras: " + data.getExtras());
             logDebug("Expected item type: " + mPurchasingItemType);
 
             if (purchaseData == null || dataSignature == null) {
@@ -505,7 +508,7 @@ public class IabHelper {
             }
         }
         else if (resultCode == Activity.RESULT_CANCELED) {
-            logDebug("Purchase canceled - Response: " + getResponseDesc(responseCode));
+            logDebugIfEnabled("Purchase canceled - Response: " + getResponseDesc(responseCode));
             result = new IabResult(IABHELPER_USER_CANCELLED, "User canceled.");
             if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
         }
@@ -838,12 +841,12 @@ public class IabHelper {
         String continueToken = null;
 
         do {
-            logDebug("Calling getPurchases with continuation token: " + continueToken);
+            logDebugIfEnabled("Calling getPurchases with continuation token: " + continueToken);
             Bundle ownedItems = mService.getPurchases(3, mContext.getPackageName(),
                     itemType, continueToken);
 
             int response = getResponseCodeFromBundle(ownedItems);
-            logDebug("Owned items response: " + String.valueOf(response));
+            logDebugIfEnabled("Owned items response: " + String.valueOf(response));
             if (response != BILLING_RESPONSE_RESULT_OK) {
                 logDebug("getPurchases() failed: " + getResponseDesc(response));
                 return response;
@@ -872,7 +875,7 @@ public class IabHelper {
 
                     if (TextUtils.isEmpty(purchase.getToken())) {
                         logWarn("BUG: empty/null token!");
-                        logDebug("Purchase data: " + purchaseData);
+                        logDebugIfEnabled("Purchase data: " + purchaseData);
                     }
 
                     // Record ownership and token
@@ -880,14 +883,14 @@ public class IabHelper {
                 }
                 else {
                     logWarn("Purchase signature verification **FAILED**. Not adding item.");
-                    logDebug("   Purchase data: " + purchaseData);
-                    logDebug("   Signature: " + signature);
+                    logDebugIfEnabled("   Purchase data: " + purchaseData);
+                    logDebugIfEnabled("   Signature: " + signature);
                     verificationFailed = true;
                 }
             }
 
             continueToken = ownedItems.getString(INAPP_CONTINUATION_TOKEN);
-            logDebug("Continuation token: " + continueToken);
+            logDebugIfEnabled("Continuation token: " + continueToken);
         } while (!TextUtils.isEmpty(continueToken));
 
         return verificationFailed ? IABHELPER_VERIFICATION_FAILED : BILLING_RESPONSE_RESULT_OK;
@@ -933,7 +936,7 @@ public class IabHelper {
 
         for (String thisResponse : responseList) {
             SkuDetails d = new SkuDetails(itemType, thisResponse);
-            logDebug("Got sku details: " + d);
+            logDebugIfEnabled("Got sku details: " + d);
             inv.addSkuDetails(d);
         }
         return BILLING_RESPONSE_RESULT_OK;
@@ -977,15 +980,19 @@ public class IabHelper {
         })).start();
     }
 
+    void logDebugIfEnabled(String msg) {
+        if (mDebugLog) logger.d(mDebugTag, msg);
+    }
+
     void logDebug(String msg) {
-        if (mDebugLog) Log.d(mDebugTag, msg);
+        logger.d(mDebugTag, msg);
     }
 
     void logError(String msg) {
-        Log.e(mDebugTag, "In-app billing error: " + msg);
+        logger.e(mDebugTag, "In-app billing error: %s", msg);
     }
 
     void logWarn(String msg) {
-        Log.w(mDebugTag, "In-app billing warning: " + msg);
+        logger.w(mDebugTag, "In-app billing warning: %s", msg);
     }
 }
