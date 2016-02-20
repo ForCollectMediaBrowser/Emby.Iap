@@ -82,9 +82,11 @@ public class IabValidator {
     public void validateProductsAsync(IResultHandler<ResultType> handler) {
         logger.d("AmazonIap", "*** validateProductsAsync");
         if (productsInitialized()) {
+            logger.d("AmazonIap","Products already initialized - just calling handler for success");
             handler.onResult(ResultType.Success);
         } else {
             productHandler = handler;
+            logger.d("AmazonIap","Calling Amazon Purchasing service for product data");
             PurchasingService.getProductData(InAppProduct.getCurrentSkus(context.getPackageName()));
         }
     }

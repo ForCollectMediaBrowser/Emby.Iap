@@ -63,7 +63,7 @@ public class InAppProduct {
         skus.add(getCurrentUnlockSku(app));
         skus.add(getCurrentMonthlySku(app));
         skus.add(getCurrentLifetimeSku(app));
-
+        Log.d("AmazonIap","Returning "+skus.size()+" skus for "+app);
         return skus;
     }
 
