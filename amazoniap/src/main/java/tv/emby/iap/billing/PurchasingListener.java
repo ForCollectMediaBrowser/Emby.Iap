@@ -89,15 +89,11 @@ public class PurchasingListener implements com.amazon.device.iap.PurchasingListe
         switch (status) {
         case SUCCESSFUL:
             iapManager.setAmazonUserId(response.getUserData().getUserId(), response.getUserData().getMarketplace());
-            if (response.getReceipts().size() == 0) {
-                iapManager.productQueryFailed(ErrorType.NoReceipts);
+            currentReceipts.addAll(response.getReceipts());
+            if (response.hasMore()) {
+                PurchasingService.getPurchaseUpdates(true);
             } else {
-                currentReceipts.addAll(response.getReceipts());
-                if (response.hasMore()) {
-                    PurchasingService.getPurchaseUpdates(true);
-                } else {
-                    iapManager.checkReceipts(currentReceipts);
-                }
+                iapManager.checkReceipts(currentReceipts);
             }
             break;
         case FAILED:
