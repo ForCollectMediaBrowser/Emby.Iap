@@ -914,32 +914,36 @@ public class IabHelper {
             return BILLING_RESPONSE_RESULT_OK;
         }
 
-        Bundle querySkus = new Bundle();
-        querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, skuList);
-        Bundle skuDetails = mService.getSkuDetails(3, mContext.getPackageName(),
-                itemType, querySkus);
+        try {
+            Bundle querySkus = new Bundle();
+            querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, skuList);
+            Bundle skuDetails = mService.getSkuDetails(3, mContext.getPackageName(),
+                    itemType, querySkus);
 
-        if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
-            int response = getResponseCodeFromBundle(skuDetails);
-            if (response != BILLING_RESPONSE_RESULT_OK) {
-                logDebug("getSkuDetails() failed: " + getResponseDesc(response));
-                return response;
+            if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
+                int response = getResponseCodeFromBundle(skuDetails);
+                if (response != BILLING_RESPONSE_RESULT_OK) {
+                    logDebug("getSkuDetails() failed: " + getResponseDesc(response));
+                    return response;
+                } else {
+                    logError("getSkuDetails() returned a bundle with neither an error nor a detail list.");
+                    return IABHELPER_BAD_RESPONSE;
+                }
             }
-            else {
-                logError("getSkuDetails() returned a bundle with neither an error nor a detail list.");
-                return IABHELPER_BAD_RESPONSE;
+            ArrayList<String> responseList = skuDetails.getStringArrayList(
+                    RESPONSE_GET_SKU_DETAILS_LIST);
+
+            for (String thisResponse : responseList) {
+                SkuDetails d = new SkuDetails(itemType, thisResponse);
+                logDebugIfEnabled("Got sku details: " + d);
+                inv.addSkuDetails(d);
             }
+            return BILLING_RESPONSE_RESULT_OK;
+        } catch (Exception e) {
+            logDebug(e.getMessage());
+            return IABHELPER_BAD_RESPONSE;
         }
 
-        ArrayList<String> responseList = skuDetails.getStringArrayList(
-                RESPONSE_GET_SKU_DETAILS_LIST);
-
-        for (String thisResponse : responseList) {
-            SkuDetails d = new SkuDetails(itemType, thisResponse);
-            logDebugIfEnabled("Got sku details: " + d);
-            inv.addSkuDetails(d);
-        }
-        return BILLING_RESPONSE_RESULT_OK;
     }
 
 
